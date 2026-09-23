@@ -1,26 +1,19 @@
 package main
 
 import (
-    "log"
-    "net"
-    "net/http"
+	"log"
+	"net/http"
 )
 
 func main() {
-    listener, err := net.Listen("tcp", "127.0.0.1:0")
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer listener.Close()
+	fs := http.FileServer(http.Dir("./static"))
 
-    port := listener.Addr().(*net.TCPAddr).Port
-    fs := http.FileServer(http.Dir("./static"))
+	http.Handle("/", fs)
 
-    http.Handle("/", fs)
+	log.Println("Server running on http://localhost:8082")
 
-    log.Printf("Server running on http://localhost:%d", port)
-
-    if err := http.Serve(listener, nil); err != nil {
-        log.Fatal(err)
-    }
+	err := http.ListenAndServe(":8082", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
